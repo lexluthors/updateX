@@ -63,7 +63,7 @@ public class DownloadUtil {
                 InputStream is = null;
                 FileOutputStream fos = null;
                         try {
-                            byte[] buf = new byte[2048];
+                            byte[] buf = new byte[4096];
                             int len = 0;
                             //储存下载文件的目录
                             String savePath = null;
@@ -84,10 +84,11 @@ public class DownloadUtil {
                                 sum += len;
                                 int progress = (int) (sum * 1.0f / total * 100);
                                 //下载中
-                                message = Message.obtain();
+                                message = mHandler.obtainMessage();
                                 message.what = DOWNLOAD_PROGRESS;
                                 message.obj = progress;
-                                mHandler.sendMessage(message);
+                                message.sendToTarget();
+//                                mHandler.sendMessage(message);
                                 Log.e("哈哈哈", "这里走了吗sum="+sum+"--progress--"+progress+"--len--"+len);
                             }
                             is.close();
@@ -117,8 +118,6 @@ public class DownloadUtil {
                 message.what = DOWNLOAD_FAIL;
                 mHandler.sendMessage(message);
             }
-
-
         });
     }
 
@@ -184,5 +183,4 @@ public class DownloadUtil {
         void onDownloadFailed();
     }
 
-    private static Handler sHandler = new Handler(Looper.getMainLooper());
 }

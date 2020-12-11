@@ -11,13 +11,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import java.io.File;
+
 import androidx.core.content.FileProvider;
+
+import java.io.File;
+
+import static android.content.res.ColorStateList.valueOf;
+import static android.graphics.Color.RED;
 
 /**
  * Description:
@@ -64,70 +70,70 @@ public class UpdateManager {
             mUpdateManager = new UpdateManager(context);
         }
 
-        /** 
+        /**
          * description: 设置apk下载路径
          * author: Allen
-         * date: 2018/11/22 15:52 
+         * date: 2018/11/22 15:52
          */
         public Builder setApkUrl(String apkUrl) {
             mUpdateManager.apkUrl = apkUrl;
             return this;
         }
 
-        /** 
+        /**
          * description: 设置apk下载路径，不设置就使用默认路径
          * author: Allen
-         * date: 2018/11/22 15:52 
+         * date: 2018/11/22 15:52
          */
         public Builder setApkPath(String apkPath) {
             mUpdateManager.apkPath = apkPath;
             return this;
         }
 
-        /** 
+        /**
          * description: 设置apk名称，不设置默认截取最后一个/之后的名称
          * author: Allen
-         * date: 2018/11/22 15:52 
+         * date: 2018/11/22 15:52
          */
         public Builder setApkName(String apkName) {
             mUpdateManager.apkName = apkName;
             return this;
         }
 
-        /** 
+        /**
          * description: 设置更新日志
          * author: Allen
-         * date: 2018/11/22 15:52 
+         * date: 2018/11/22 15:52
          */
         public Builder setUpdateLog(String updateLog) {
             mUpdateManager.updateLog = updateLog;
             return this;
         }
 
-        /** 
+        /**
          * description: 设置标题
          * author: Allen
-         * date: 2018/11/22 15:52 
+         * date: 2018/11/22 15:52
          */
         public Builder setTitle(String title) {
             mUpdateManager.title = title;
             return this;
         }
 
-        /** 
+        /**
          * description: 副标题设置
          * author: Allen
-         * date: 2018/11/22 15:52 
+         * date: 2018/11/22 15:52
          */
         public Builder setSubTitle(String subTitle) {
             mUpdateManager.subTitle = subTitle;
             return this;
         }
 
-        /** 
+        /**
          * description: 是否强制更新，isForce默认是false
          * author: Allen
-         * date: 2018/11/22 15:52 
+         * date: 2018/11/22 15:52
          */
         public Builder setForceUpdate(boolean isForce) {
             mUpdateManager.isForce = isForce;
@@ -144,30 +150,30 @@ public class UpdateManager {
             return this;
         }
 
-        /** 
+        /**
          * description: 点击确定按钮之后，是否显示进度条，默认是显示的
          * author: Allen
-         * date: 2018/11/22 15:51 
+         * date: 2018/11/22 15:51
          */
         public Builder setShowProgress(boolean isProgress) {
             mUpdateManager.isProgress = isProgress;
             return this;
         }
 
-        /** 
+        /**
          * description: 是否显示通知
          * author: Allen
-         * date: 2018/11/22 15:53 
+         * date: 2018/11/22 15:53
          */
         public Builder setShowNotification(boolean isNotification) {
             mUpdateManager.isNotification = isNotification;
             return this;
         }
 
-        /** 
+        /**
          * description: 设置通知图标
          * author: Allen
-         * date: 2018/11/22 15:53 
+         * date: 2018/11/22 15:53
          */
         public Builder setNotificationIcon(int notifyIcon) {
             mUpdateManager.notifyIcon = notifyIcon;
@@ -220,12 +226,13 @@ public class UpdateManager {
         TextView content = view.findViewById(R.id.content);
         final LinearLayout button_layout = view.findViewById(R.id.button_layout);
         final ProgressBar progressBar = view.findViewById(R.id.progress);
+        progressBar.setProgressTintList(valueOf(RED));
         final TextView install = view.findViewById(R.id.install);
         if (isForce) {
             //如果是强制更新，就设置对话框不可取消
             dialog.setCanceledOnTouchOutside(false);
             dialog.setCancelable(false);
-        }else{
+        } else {
             dialog.setCanceledOnTouchOutside(false);
             dialog.setCancelable(true);
         }
@@ -294,6 +301,7 @@ public class UpdateManager {
 
                     @Override
                     public void onDownloading(int progress) {
+                        Log.e("下载进度>>>>", Thread.currentThread().getName()+"进度"+progress);
                         progressBar.setProgress(progress);
                         if (isNotification) {
                             cBuilder.setProgress(100, progress, false);
@@ -350,18 +358,19 @@ public class UpdateManager {
         // 获取系统服务来初始化对象
         nm = (NotificationManager) context
                 .getSystemService(Activity.NOTIFICATION_SERVICE);
-        cBuilder = new Notification.Builder(context,"default");
+        cBuilder = new Notification.Builder(context, "default");
         setCompatBuilder(notifyIcon, "新版本更新", "正在下载中");
     }
 
     /**
      * 设置在顶部通知栏中的各种信息
+     *
      * @param smallIcon
      */
     private void setCompatBuilder(int smallIcon, String title, String content) {
         NotificationChannel a;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            a = new NotificationChannel("10000","default", NotificationManager.IMPORTANCE_LOW);
+            a = new NotificationChannel("10000", "default", NotificationManager.IMPORTANCE_LOW);
             nm.createNotificationChannel(a);
             cBuilder.setChannelId("10000");
         }

@@ -1,5 +1,5 @@
-<resources>
-
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
     <style name="DialogStyle" parent="@android:style/Theme.Dialog">
 
         <!-- 设置完全透明 -->
@@ -16,5 +16,6 @@
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
         <!-- 设置屏幕变暗 -->
         <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:background">@color/common_pressed</item>
     </style>
 </resources>

@@ -11,7 +11,7 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="是否升级"
+        android:text=""
         android:textSize="16sp"
         android:textStyle="bold"/>
 
@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"
-        android:text="是否升级"
+        android:text=""
         android:textSize="14sp"/>
 
     <com.mycp.updatelib.XScrollView
@@ -36,7 +36,7 @@
                 android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="是否升级辣椒干辣椒格拉斯加咖喱烧烤锅家立是管理工具as了估计撒了看到几个卢卡斯的伽古拉是"
+                android:text=""
                 android:textSize="14sp"/>
         </LinearLayout>
     </com.mycp.updatelib.XScrollView>
