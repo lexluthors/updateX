@@ -4,13 +4,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-
-import java.io.File;
 
 /**
  * Description:
@@ -19,8 +16,7 @@ import java.io.File;
  */
 public class UpdateUtils {
 
-    public static final String PATH = "apk_path";
-    public static final String FILEPATH = Environment.getExternalStorageDirectory() + File.separator + "download" + File.separator + "update_app" + File.separator;
+    public static final String apkDir = "apk";
 
     public static String getNameFromUrl(String url) {
         return url.substring(url.lastIndexOf("/") + 1);

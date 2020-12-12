@@ -1,5 +1,6 @@
 package com.mycp.updatelib;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -12,8 +13,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -48,37 +47,32 @@ public class DownloadUtil {
 
     /**
      * @param url      下载地址
-     * @param saveDir  保存文件目录
-     * @param pathName 保存的文件名称
+     * @param fileName 保存的文件名称
      * @param listener 监听器
      */
-    public void download(final String url, final String saveDir, final String pathName, final OnDownloadListener listener) {
+    public void download(final Context context,final String url, final String fileName, final OnDownloadListener listener) {
         this.listener = listener;
         Request request = new Request.Builder().url(url).build();
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-
-                Log.e("这里是什么线程>>>>", Thread.currentThread().getName());
                 InputStream is = null;
                 FileOutputStream fos = null;
                         try {
                             byte[] buf = new byte[4096];
-                            int len = 0;
                             //储存下载文件的目录
-                            String savePath = null;
-                            savePath = isExistDir(saveDir);
-
+                            String apkFilePath = context.getExternalFilesDir("apk").getAbsolutePath();
                             is = response.body().byteStream();
                             long total = response.body().contentLength();
                             File file = null;
-                            if (TextUtils.isEmpty(pathName)) {
-                                file = new File(savePath, UpdateUtils.getNameFromUrl(url));
+                            if (TextUtils.isEmpty(fileName)) {
+                                file = new File(apkFilePath + File.separator +  UpdateUtils.getNameFromUrl(url));
                             } else {
-                                file = new File(savePath, pathName);
+                                file = new File(apkFilePath + File.separator + fileName);
                             }
                             fos = new FileOutputStream(file);
                             long sum = 0;
+                            int len = 0;
                             while ((len = is.read(buf)) != -1) {
                                 fos.write(buf, 0, len);
                                 sum += len;
@@ -119,19 +113,6 @@ public class DownloadUtil {
                 mHandler.sendMessage(message);
             }
         });
-    }
-
-    /**
-     * description: 不传入保存路径，默认使用FILEPATH
-     * author: Allen
-     * date: 2018/11/2 17:05
-     */
-    public void download(final String url, String apkName, final OnDownloadListener listener) {
-        download(url, UpdateUtils.FILEPATH, apkName, listener);
-    }
-
-    public void download(final String url, final OnDownloadListener listener) {
-        download(url, UpdateUtils.FILEPATH, UpdateUtils.getNameFromUrl(url), listener);
     }
 
     private String isExistDir(String saveDir) throws IOException {

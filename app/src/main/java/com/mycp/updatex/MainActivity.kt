@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.hjq.permissions.OnPermission
 import com.hjq.permissions.XXPermissions
 import com.mycp.updatelib.UpdateManager
-import com.mycp.updatelib.UpdateUtils
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -16,14 +15,12 @@ class MainActivity : AppCompatActivity() {
         download.setOnClickListener {
             UpdateManager.newBuilder(this@MainActivity)
                 .setUpdateLog(log)
-                .setApkUrl("http://dl-tc.coolapkmarket.com/down/apk_upload/2020/1129/app-release_208_jiagu_sign-263117-o_1eo8mcg4fgub84l13gc8lpathr-uid-913919.apk?t=1607675378&sign=f3e725091172da0ce71cd9205b412c24")
+                .setApkUrl("https://image.flyfishoutlets.com/apk/215585161.apk")
                 .setApkName("videocompress.apk")
-                .setApkPath(UpdateUtils.FILEPATH)
                 .setTitle("发现更新")
                 .setSubTitle("是否更新新版本？")
                 .setForceUpdate(false)
                 .setShowProgress(true)
-                .setShowNotification(true)
                 .build()
                 .showUpdate()
         }

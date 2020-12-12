@@ -1,11 +1,6 @@
 package com.mycp.updatelib;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,9 +17,6 @@ import androidx.core.content.FileProvider;
 
 import java.io.File;
 
-import static android.content.res.ColorStateList.valueOf;
-import static android.graphics.Color.RED;
-
 /**
  * Description:
  * Data：2018/11/5-18:55
@@ -34,8 +26,8 @@ public class UpdateManager {
     Context context;
     //apk下载地址
     String apkUrl;
-    //apk存储路径
-    String apkPath;
+    //apk存储路径目录，只能是当前应用私有目录
+    String apkDirName;
     //apk名称
     String apkName;
     //更新日志
@@ -44,16 +36,12 @@ public class UpdateManager {
     String title = "";
     //副标题
     String subTitle = "";
-    //通知icon
-    int notifyIcon = R.drawable.ic_android_black_24dp;
     //是否强制更新
     boolean isForce;
     //是否点击周围空白取消
     boolean isOutside = false;
     //是否显示进度条
     boolean isProgress;
-    //是否显示通知
-    boolean isNotification = true;
 
     public UpdateManager(Context context) {
         this.context = context;
@@ -81,12 +69,12 @@ public class UpdateManager {
         }
 
         /**
-         * description: 设置apk下载路径，不设置就使用默认路径
+         * description: 设置apk下载路径的目录名，在当前私有目录下，不设置就使用默认路径
          * author: Allen
          * date: 2018/11/22 15:52
          */
-        public Builder setApkPath(String apkPath) {
-            mUpdateManager.apkPath = apkPath;
+        public Builder setApkDirName(String apkDir) {
+            mUpdateManager.apkDirName = apkDir;
             return this;
         }
 
@@ -160,26 +148,6 @@ public class UpdateManager {
             return this;
         }
 
-        /**
-         * description: 是否显示通知
-         * author: Allen
-         * date: 2018/11/22 15:53
-         */
-        public Builder setShowNotification(boolean isNotification) {
-            mUpdateManager.isNotification = isNotification;
-            return this;
-        }
-
-        /**
-         * description: 设置通知图标
-         * author: Allen
-         * date: 2018/11/22 15:53
-         */
-        public Builder setNotificationIcon(int notifyIcon) {
-            mUpdateManager.notifyIcon = notifyIcon;
-            return this;
-        }
-
         public UpdateManager build() {
             return mUpdateManager;
         }
@@ -190,29 +158,23 @@ public class UpdateManager {
     boolean isYetDownloadNoInstall = false;
 
     public void showUpdate() {
-        if (TextUtils.isEmpty(apkPath)) {
+        String apkDirPath ="";
+        if (TextUtils.isEmpty(apkDirName)) {
             //直接使用默认路径和名称
-            if (TextUtils.isEmpty(apkName)) {
-                apkFilePath = UpdateUtils.FILEPATH + UpdateUtils.getNameFromUrl(apkUrl);
-            } else {
-                apkFilePath = UpdateUtils.FILEPATH + apkName;
-            }
-            File file = new File(apkFilePath);
-            if (file.exists()) {
-                //已经存在，直接安装
-                isYetDownloadNoInstall = true;
-            }
+            apkDirPath = context.getExternalFilesDir(UpdateUtils.apkDir).getAbsolutePath();
         } else {
-            if (TextUtils.isEmpty(apkName)) {
-                apkFilePath = apkPath + UpdateUtils.getNameFromUrl(apkUrl);
-            } else {
-                apkFilePath = apkPath + apkName;
-            }
-            File file = new File(apkFilePath);
-            if (file.exists()) {
-                //已经存在，直接安装
-                isYetDownloadNoInstall = true;
-            }
+            apkDirPath = context.getExternalFilesDir(apkDirName).getAbsolutePath();
+        }
+
+        if (TextUtils.isEmpty(apkName)) {
+            apkFilePath = apkDirPath + File.separator + UpdateUtils.getNameFromUrl(apkUrl);
+        } else {
+            apkFilePath = apkDirPath + File.separator + apkName;
+        }
+        File file = new File(apkFilePath);
+        if (file.exists()) {
+            //已经存在，直接安装
+            isYetDownloadNoInstall = true;
         }
 
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE); //context需定义
@@ -222,11 +184,13 @@ public class UpdateManager {
         TextView title_tv = view.findViewById(R.id.title);
         TextView subtitle_tv = view.findViewById(R.id.subtitle);
         TextView confirm = view.findViewById(R.id.confirm);
-        TextView cancle = view.findViewById(R.id.cancle);
+        TextView cancel = view.findViewById(R.id.cancle);
         TextView content = view.findViewById(R.id.content);
         final LinearLayout button_layout = view.findViewById(R.id.button_layout);
         final ProgressBar progressBar = view.findViewById(R.id.progress);
-        progressBar.setProgressTintList(valueOf(RED));
+//        progressBar.setProgressTintList(valueOf(RED));
+//        progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(context,R.color.common_pressed), PorterDuff.Mode.SRC_IN);
+
         final TextView install = view.findViewById(R.id.install);
         if (isForce) {
             //如果是强制更新，就设置对话框不可取消
@@ -278,35 +242,19 @@ public class UpdateManager {
                     }
                 }
                 //立即更新
-                if (TextUtils.isEmpty(apkPath)) {
-                    apkPath = UpdateUtils.FILEPATH;
-                }
-                if (TextUtils.isEmpty(apkName)) {
-                    apkName = UpdateUtils.getNameFromUrl(apkUrl);
-                }
-
-                if (isNotification) {
-                    //显示下载通知
-                    showNotification();
-                }
-                DownloadUtil.getInstance().download(apkUrl, apkPath, apkName, new DownloadUtil.OnDownloadListener() {
+                DownloadUtil.getInstance().download(context, apkUrl, apkName, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(String path) {
                         //去安装
                         installApk(context, path);
                         install.setVisibility(View.VISIBLE);
                         progressBar.setVisibility(View.GONE);
-                        clear();
                     }
 
                     @Override
                     public void onDownloading(int progress) {
-                        Log.e("下载进度>>>>", Thread.currentThread().getName()+"进度"+progress);
+                        Log.e("下载进度>>>>", Thread.currentThread().getName() + "进度" + progress);
                         progressBar.setProgress(progress);
-                        if (isNotification) {
-                            cBuilder.setProgress(100, progress, false);
-                            sent();
-                        }
                     }
 
                     @Override
@@ -315,7 +263,7 @@ public class UpdateManager {
                 });
             }
         });
-        cancle.setOnClickListener(new View.OnClickListener() {
+        cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //暂不更新
@@ -348,62 +296,4 @@ public class UpdateManager {
         }
     }
 
-
-    private int NOTIFICATION_ID = 7;
-    private NotificationManager nm;
-    private Notification.Builder cBuilder;
-    private Notification notification;
-
-    private void showNotification() {
-        // 获取系统服务来初始化对象
-        nm = (NotificationManager) context
-                .getSystemService(Activity.NOTIFICATION_SERVICE);
-        cBuilder = new Notification.Builder(context, "default");
-        setCompatBuilder(notifyIcon, "新版本更新", "正在下载中");
-    }
-
-    /**
-     * 设置在顶部通知栏中的各种信息
-     *
-     * @param smallIcon
-     */
-    private void setCompatBuilder(int smallIcon, String title, String content) {
-        NotificationChannel a;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            a = new NotificationChannel("10000", "default", NotificationManager.IMPORTANCE_LOW);
-            nm.createNotificationChannel(a);
-            cBuilder.setChannelId("10000");
-        }
-
-        Intent it = new Intent(Intent.ACTION_VIEW);
-        it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, it, PendingIntent.FLAG_UPDATE_CURRENT);
-        cBuilder.setContentIntent(pendingIntent);// 该通知要启动的Intent
-        cBuilder.setSmallIcon(smallIcon);// 设置顶部状态栏的小图标
-//        cBuilder.setTicker(ticker);// 在顶部状态栏中的提示信息
-        cBuilder.setContentTitle(title);// 设置通知中心的标题
-        cBuilder.setContentText(content);// 设置通知中心中的内容
-        cBuilder.setWhen(System.currentTimeMillis());
-        cBuilder.setAutoCancel(true);
-        cBuilder.setPriority(Notification.PRIORITY_MAX);
-        int defaults = 0;
-        cBuilder.setDefaults(defaults);
-    }
-
-    /**
-     * 发送通知
-     */
-    private void sent() {
-        notification = cBuilder.build();
-        // 发送该通知
-        nm.notify(NOTIFICATION_ID, notification);
-    }
-
-    /**
-     * 根据id清除通知
-     */
-    public void clear() {
-        // 取消通知
-        nm.cancelAll();
-    }
 }
