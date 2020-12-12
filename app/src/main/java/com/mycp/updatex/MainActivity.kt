@@ -29,37 +29,57 @@ class MainActivity : AppCompatActivity() {
 //                .build()
 //                .showUpdate()
            var  scaleCmd = "-vf scale=1080:1920 "
-            getFileSelect(this, "选择文件", 1) {
-                if(it.size>0){
-                    val path = it[0].filePath
-                    val outPath = FileUtil.PATH + "_my" +  ".mp4"
-                    val cmds = getCompressCmd(
-                        path,
-                        outPath,
-                        "30",
-                        scaleCmd,
-                        "2048",
-                        "60"
-                    )
-                    RxFFmpegInvoke.getInstance()
-                        .runCommandRxJava(cmds)
-                        .subscribe(object : RxFFmpegSubscriber() {
-                            override fun onError(message: String?) {
-                            }
+            val cmds = listOf("ffmpeg","-help").toTypedArray()
+            RxFFmpegInvoke.getInstance()
+                .runCommandRxJava(cmds)
+                .subscribe(object : RxFFmpegSubscriber() {
+                    override fun onError(message: String?) {
+                        LogUtils.loge("完成》》》》》》》》》》》$message")
+                    }
 
-                            override fun onFinish() {
-                                LogUtils.loge("完成》》》》》》》》》》》")
-                            }
+                    override fun onFinish() {
+                        LogUtils.loge("完成》》》》》》》》》》》")
+                    }
 
-                            override fun onProgress(progress: Int, progressTime: Long) {
-                                LogUtils.loge("处理中onProgress》》》》》》》》》》》progress"+progress+" <<<<<<<<progressTime>>>>>>>>"+progressTime)
-                            }
+                    override fun onProgress(progress: Int, progressTime: Long) {
+                        LogUtils.loge("处理中onProgress》》》》》》》》》》》progress"+progress+" <<<<<<<<progressTime>>>>>>>>"+progressTime)
+                    }
 
-                            override fun onCancel() {
-                            }
-                        })
-                }
-            }
+                    override fun onCancel() {
+                    }
+                })
+
+//            getFileSelect(this, "选择文件", 1) {
+//                if(it.size>0){
+//                    val path = it[0].filePath
+//                    val outPath = FileUtil.PATH + "_my" +  ".mp4"
+//                    val cmds = getCompressCmd(
+//                        path,
+//                        outPath,
+//                        "30",
+//                        scaleCmd,
+//                        "2048",
+//                        "60"
+//                    )
+//                    RxFFmpegInvoke.getInstance()
+//                        .runCommandRxJava(cmds)
+//                        .subscribe(object : RxFFmpegSubscriber() {
+//                            override fun onError(message: String?) {
+//                            }
+//
+//                            override fun onFinish() {
+//                                LogUtils.loge("完成》》》》》》》》》》》")
+//                            }
+//
+//                            override fun onProgress(progress: Int, progressTime: Long) {
+//                                LogUtils.loge("处理中onProgress》》》》》》》》》》》progress"+progress+" <<<<<<<<progressTime>>>>>>>>"+progressTime)
+//                            }
+//
+//                            override fun onCancel() {
+//                            }
+//                        })
+//                }
+//            }
 
         }
     }
