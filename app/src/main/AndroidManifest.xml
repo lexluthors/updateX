@@ -26,7 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name="com.thl.filechooser.FileChooserActivity" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.mycp.updatex.fileprovider"
