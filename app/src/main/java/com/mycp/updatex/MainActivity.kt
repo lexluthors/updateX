@@ -5,10 +5,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.hjq.permissions.OnPermission
 import com.hjq.permissions.XXPermissions
+import com.mycp.updatelib.UpdateManager
 import com.thl.filechooser.FileChooser
 import com.thl.filechooser.FileInfo
-import io.microshow.rxffmpeg.RxFFmpegInvoke
-import io.microshow.rxffmpeg.RxFFmpegSubscriber
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -18,36 +17,36 @@ class MainActivity : AppCompatActivity() {
         LogUtils.logInit(true)
         permissions()
         download.setOnClickListener {
-//            UpdateManager.newBuilder(this@MainActivity)
-//                .setUpdateLog(log)
-//                .setApkUrl("https://image.flyfishoutlets.com/apk/215585161.apk")
-//                .setApkName("videocompress.apk")
-//                .setTitle("发现更新")
-//                .setSubTitle("是否更新新版本？")
-//                .setForceUpdate(false)
-//                .setShowProgress(true)
-//                .build()
-//                .showUpdate()
+            UpdateManager.newBuilder(this@MainActivity)
+                .setUpdateLog(log)
+                .setApkUrl("https://image.flyfishoutlets.com/apk/215585161.apk")
+                .setApkName("videocompress.apk")
+                .setTitle("发现更新")
+                .setSubTitle("是否更新新版本？")
+                .setForceUpdate(false)
+                .setShowProgress(true)
+                .build()
+                .showUpdate()
            var  scaleCmd = "-vf scale=1080:1920 "
             val cmds = listOf("ffmpeg","-help").toTypedArray()
-            RxFFmpegInvoke.getInstance()
-                .runCommandRxJava(cmds)
-                .subscribe(object : RxFFmpegSubscriber() {
-                    override fun onError(message: String?) {
-                        LogUtils.loge("完成》》》》》》》》》》》$message")
-                    }
-
-                    override fun onFinish() {
-                        LogUtils.loge("完成》》》》》》》》》》》")
-                    }
-
-                    override fun onProgress(progress: Int, progressTime: Long) {
-                        LogUtils.loge("处理中onProgress》》》》》》》》》》》progress"+progress+" <<<<<<<<progressTime>>>>>>>>"+progressTime)
-                    }
-
-                    override fun onCancel() {
-                    }
-                })
+//            RxFFmpegInvoke.getInstance()
+//                .runCommandRxJava(cmds)
+//                .subscribe(object : RxFFmpegSubscriber() {
+//                    override fun onError(message: String?) {
+//                        LogUtils.loge("完成》》》》》》》》》》》$message")
+//                    }
+//
+//                    override fun onFinish() {
+//                        LogUtils.loge("完成》》》》》》》》》》》")
+//                    }
+//
+//                    override fun onProgress(progress: Int, progressTime: Long) {
+//                        LogUtils.loge("处理中onProgress》》》》》》》》》》》progress"+progress+" <<<<<<<<progressTime>>>>>>>>"+progressTime)
+//                    }
+//
+//                    override fun onCancel() {
+//                    }
+//                })
 
 //            getFileSelect(this, "选择文件", 1) {
 //                if(it.size>0){
@@ -100,7 +99,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     var log = """
-        12月17日晚更新说明：
+        12月17日晚更新说明：https://image.flyfishoutlets.com
         """.trimIndent()
 
     private fun permissions() {
